@@ -17,9 +17,7 @@ package client
 
 import (
 	"context"
-	"crypto/tls"
 
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc"
 	cpb "github.com/openconfig/gnoi/containerz"
 )
@@ -34,11 +32,10 @@ type Client struct {
 	cli cpb.ContainerzClient
 }
 
-// NewClient builds a new containerz client.
+// NewClient builds a new containerz client without TLS.
 func NewClient(ctx context.Context, addr string) (*Client, error) {
-	tls := &tls.Config{InsecureSkipVerify: true} // NOLINT
-	tlsCred := grpc.WithTransportCredentials(credentials.NewTLS(tls))
-	conn, err := Dial(ctx, addr, tlsCred)
+	// Use grpc.WithInsecure() to avoid using TLS
+	conn, err := Dial(ctx, addr, grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
