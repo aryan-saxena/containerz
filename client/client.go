@@ -17,8 +17,9 @@ package client
 
 import (
 	"context"
-
+	"fmt"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	cpb "github.com/openconfig/gnoi/containerz"
 )
 
@@ -32,12 +33,21 @@ type Client struct {
 	cli cpb.ContainerzClient
 }
 
-// NewClient builds a new containerz client without TLS.
-func NewClient(ctx context.Context, addr string) (*Client, error) {
+// NewClient builds a new containerz client with username and password for authentication.
+func NewClient(ctx context.Context, addr, username, password string) (*Client, error) {
+	// Create metadata with username and password
+	md := metadata.Pairs(
+		"username", username,
+		"password", password,
+	)
+
+	// Attach metadata to context
+	ctx = metadata.NewOutgoingContext(ctx, md)
+
 	// Use grpc.WithInsecure() to avoid using TLS
 	conn, err := Dial(ctx, addr, grpc.WithInsecure())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to dial server: %v", err)
 	}
 
 	return &Client{
