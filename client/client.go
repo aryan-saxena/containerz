@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	cpb "github.com/openconfig/gnoi/containerz"
 )
@@ -34,7 +35,7 @@ func (c *creds) RequireTransportSecurity() bool {
 
 // NewClient builds a new containerz client.
 func NewClient(ctx context.Context, addr string) (*Client, error) {
-	conn, err := grpc.NewClient(addr, grpc.WithPerRPCCredentials(&creds{"cisco", "cisco123"}))
+	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithPerRPCCredentials(&creds{"cisco", "cisco123"}))
 	if err != nil {
 		return nil, err
 	}
